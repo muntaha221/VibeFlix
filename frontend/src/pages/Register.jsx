@@ -23,6 +23,11 @@ const Register = () => {
 
     if (!username.trim() || !password) return;
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
     try {
       await register({ username: username.trim(), password });

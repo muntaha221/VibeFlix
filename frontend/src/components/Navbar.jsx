@@ -105,59 +105,7 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   };
 
-  // Shared search input JSX
-  const SearchInput = () => (
-    <>
-      <Search size={15} className="search-icon-inside" />
-      <input
-        ref={inputRef}
-        type="text"
-        className="nav-search-input"
-        placeholder="Search movies, series… or press Enter"
-        value={searchQuery}
-        onChange={handleSearchChange}
-        onKeyDown={handleKeyDown}
-      />
-      {searchQuery && (
-        <button className="search-close-btn" onClick={() => { setSearchQuery(''); setSearchResults([]); inputRef.current?.focus(); }}>
-          <X size={14} />
-        </button>
-      )}
-
-      {/* Shared Dropdown */}
-      {(searchResults.length > 0 || searchLoading) && (
-        <div className="search-dropdown">
-          {searchLoading && (
-            <div className="search-loading">
-              <span className="spinner-small" /> Searching…
-            </div>
-          )}
-          {!searchLoading && searchResults.map((movie) => (
-            <button
-              key={movie.tmdbId || movie.id}
-              className="search-result-item"
-              onClick={() => handleResultClick(movie)}
-            >
-              {movie.poster_path ? (
-                <img src={movie.poster_path} alt={movie.title} className="search-result-poster" loading="lazy" />
-              ) : (
-                <div className="search-result-poster-placeholder">🎬</div>
-              )}
-              <div className="search-result-info">
-                <span className="search-result-title">{movie.title}</span>
-                <span className="search-result-meta">
-                  {movie.media_type === 'tv' ? 'TV Series' : 'Movie'} · {(movie.release_date || movie.releaseDate || '').slice(0, 4)}
-                </span>
-              </div>
-            </button>
-          ))}
-          {!searchLoading && searchResults.length === 0 && searchQuery.length > 1 && (
-            <div className="search-no-results">No results for "{searchQuery}"</div>
-          )}
-        </div>
-      )}
-    </>
-  );
+  // Inlining Search JSX to avoid nested component unmounting issues
 
   return (
     <header className={`navbar-wrapper ${scrolled ? 'scrolled' : ''}`}>
@@ -184,7 +132,52 @@ const Navbar = () => {
             <div className="nav-search-wrap" ref={searchRef}>
               {searchOpen ? (
                 <div className="nav-search-box">
-                  <SearchInput />
+                  <Search size={15} className="search-icon-inside" />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    className="nav-search-input"
+                    placeholder="Search movies, series… or press Enter"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                  />
+                  {searchQuery && (
+                    <button className="search-close-btn" onClick={() => { setSearchQuery(''); setSearchResults([]); inputRef.current?.focus(); }}>
+                      <X size={14} />
+                    </button>
+                  )}
+                  {(searchResults.length > 0 || searchLoading) && (
+                    <div className="search-dropdown">
+                      {searchLoading && (
+                        <div className="search-loading">
+                          <span className="spinner-small" /> Searching…
+                        </div>
+                      )}
+                      {!searchLoading && searchResults.map((movie) => (
+                        <button
+                          key={movie.tmdbId || movie.id}
+                          className="search-result-item"
+                          onClick={() => handleResultClick(movie)}
+                        >
+                          {movie.poster_path ? (
+                            <img src={movie.poster_path} alt={movie.title} className="search-result-poster" loading="lazy" />
+                          ) : (
+                            <div className="search-result-poster-placeholder">🎬</div>
+                          )}
+                          <div className="search-result-info">
+                            <span className="search-result-title">{movie.title}</span>
+                            <span className="search-result-meta">
+                              {movie.media_type === 'tv' ? 'TV Series' : 'Movie'} · {(movie.release_date || movie.releaseDate || '').slice(0, 4)}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                      {!searchLoading && searchResults.length === 0 && searchQuery.length > 1 && (
+                        <div className="search-no-results">No results for "{searchQuery}"</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <button className="nav-search-btn" onClick={openSearch} title="Search">
@@ -225,7 +218,52 @@ const Navbar = () => {
         {searchOpen && (
           <div className="mobile-search-bar" ref={!searchOpen ? null : (el) => { /* handled by document click */ }}>
             <div className="mobile-search-inner" ref={searchRef}>
-              <SearchInput />
+              <Search size={15} className="search-icon-inside" />
+              <input
+                ref={inputRef}
+                type="text"
+                className="nav-search-input"
+                placeholder="Search movies, series… or press Enter"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+              />
+              {searchQuery && (
+                <button className="search-close-btn" onClick={() => { setSearchQuery(''); setSearchResults([]); inputRef.current?.focus(); }}>
+                  <X size={14} />
+                </button>
+              )}
+              {(searchResults.length > 0 || searchLoading) && (
+                <div className="search-dropdown">
+                  {searchLoading && (
+                    <div className="search-loading">
+                      <span className="spinner-small" /> Searching…
+                    </div>
+                  )}
+                  {!searchLoading && searchResults.map((movie) => (
+                    <button
+                      key={movie.tmdbId || movie.id}
+                      className="search-result-item"
+                      onClick={() => handleResultClick(movie)}
+                    >
+                      {movie.poster_path ? (
+                        <img src={movie.poster_path} alt={movie.title} className="search-result-poster" loading="lazy" />
+                      ) : (
+                        <div className="search-result-poster-placeholder">🎬</div>
+                      )}
+                      <div className="search-result-info">
+                        <span className="search-result-title">{movie.title}</span>
+                        <span className="search-result-meta">
+                          {movie.media_type === 'tv' ? 'TV Series' : 'Movie'} · {(movie.release_date || movie.releaseDate || '').slice(0, 4)}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                  {!searchLoading && searchResults.length === 0 && searchQuery.length > 1 && (
+                    <div className="search-no-results">No results for "{searchQuery}"</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

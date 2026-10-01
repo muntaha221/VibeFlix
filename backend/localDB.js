@@ -1,11 +1,23 @@
 const fs = require('fs');
 const path = require('path');
 
-const DB_FILE = path.join(__dirname, 'database.json');
+const isProd = process.env.NODE_ENV === 'production';
+const DB_FILE = isProd 
+  ? path.join('/tmp', 'database.json') 
+  : path.join(__dirname, 'database.json');
 
 const readDB = () => {
   if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify({ users: [], movies: [], reviews: [] }));
+    const initialDB = path.join(__dirname, 'database.json');
+    if (isProd && fs.existsSync(initialDB)) {
+      try {
+        fs.copyFileSync(initialDB, DB_FILE);
+      } catch (e) {
+        fs.writeFileSync(DB_FILE, JSON.stringify({ users: [], movies: [], reviews: [] }));
+      }
+    } else {
+      fs.writeFileSync(DB_FILE, JSON.stringify({ users: [], movies: [], reviews: [] }));
+    }
   }
   return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
 };

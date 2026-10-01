@@ -268,11 +268,13 @@
   width: 90vw;
   max-width: 1100px;
   aspect-ratio: 16/9;
+  min-height: 250px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 0 80px rgba(76, 201, 240, 0.2), 0 0 0 1px var(--glass-border);
   animation: scaleIn 0.3s ease;
   background: #000;
+  pointer-events: auto;
 }
 
 .trailer-iframe {
