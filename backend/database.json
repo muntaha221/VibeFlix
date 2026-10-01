@@ -1,0 +1,62 @@
+{
+  "users": [
+    {
+      "_id": "pz1ua27z8",
+      "username": "sharafat123",
+      "password": "$2b$10$ud80MEop/uxxOzmeCa5jO.FdjYf6qR4j8aAUQFobhk6AZxF2auFsS",
+      "watchlist": [
+        {
+          "tmdbId": 1375646,
+          "id": 1375646,
+          "title": "Colony",
+          "poster_path": "https://image.tmdb.org/t/p/w500/tN799oUR0f1gUKDYdMNrDaY7I51.jpg",
+          "backdrop_path": "https://image.tmdb.org/t/p/original/qBZd6U5yDI922M2d2lACM1uhK4W.jpg",
+          "media_type": "movie"
+        },
+        {
+          "tmdbId": 239385,
+          "id": 239385,
+          "title": "The Manipulated",
+          "poster_path": "https://image.tmdb.org/t/p/w500/nOj4nsomFyAVJgpp68L0xq3cREc.jpg",
+          "backdrop_path": "https://image.tmdb.org/t/p/original/ngP3rIU1KY7ek0r6hSJFnVsrh9g.jpg",
+          "media_type": "movie"
+        },
+        {
+          "tmdbId": 210704,
+          "id": 210704,
+          "title": "The Worst of Evil",
+          "poster_path": "https://image.tmdb.org/t/p/w500/uZJGMFgE1Q9xpncVAu1G3Vce4nP.jpg",
+          "backdrop_path": "https://image.tmdb.org/t/p/original/rwvpB0kuOCBCEtCs344sjkeVnJp.jpg",
+          "media_type": "movie"
+        },
+        {
+          "tmdbId": 256226,
+          "id": 256226,
+          "title": "Dear X",
+          "poster_path": "https://image.tmdb.org/t/p/w500/AbFg7Ve5BYLPxtEXW9dn4pHPLdx.jpg",
+          "backdrop_path": "https://image.tmdb.org/t/p/original/i3bMeXOGyT57owjlMPCuLiijhq5.jpg",
+          "media_type": "movie"
+        }
+      ]
+    }
+  ],
+  "movies": [],
+  "reviews": [
+    {
+      "_id": "9gspnww6j",
+      "user": "pz1ua27z8",
+      "username": "sharafat123",
+      "movie": 1375646,
+      "rating": 4,
+      "comment": "Rated via Vibeflix UI"
+    },
+    {
+      "_id": "8f3i1b8az",
+      "user": "pz1ua27z8",
+      "username": "sharafat123",
+      "movie": 239385,
+      "rating": 3,
+      "comment": "Rated via Vibeflix UI"
+    }
+  ]
+}

@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Star, Clock, Calendar, Bookmark, Play, ArrowLeft, Check, X, Sparkles, ExternalLink } from 'lucide-react';
+import { Star, Clock, Calendar, Bookmark, Play, ArrowLeft, Check, X, Sparkles, ExternalLink, Users } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
 import './MovieDetail.css';
 import { useAuth } from '../context/AuthContext';
 
 const MovieDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
+  const typeParam = location.state?.type;
+  
   const { user, refreshUser } = useAuth();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRating, setUserRating] = useState(0);
   const [inWatchlist, setInWatchlist] = useState(false);
   const [showTrailer, setShowTrailer] = useState(false);
+  const [smartRecs, setSmartRecs] = useState([]);
+  const [recsLoading, setRecsLoading] = useState(false);
+  const [castInfo, setCastInfo] = useState([]);
 
   useEffect(() => {
     if (movie && user) {
@@ -24,9 +30,28 @@ const MovieDetail = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       setLoading(true);
+      setSmartRecs([]);
+      setCastInfo([]);
+      setUserRating(0); // Reset rating state on navigation
       try {
-        const res = await axios.get(`/api/movies/details/${id}`);
+        const res = await axios.get(`/api/movies/details/${id}${typeParam ? `?type=${typeParam}` : ''}`);
         setMovie(res.data);
+
+        // Fetch smart cast-based recommendations via our backend only
+        const mediaType = res.data.media_type || 'movie';
+        setRecsLoading(true);
+        try {
+          const recsRes = await axios.get(`/api/movies/smart-recommendations/${id}?type=${mediaType}`);
+          setSmartRecs(Array.isArray(recsRes.data) ? recsRes.data : []);
+          // Use genres cast from movie details if available
+          if (res.data.credits?.cast) {
+            setCastInfo((res.data.credits.cast || []).slice(0, 5));
+          }
+        } catch (e) {
+          console.error('Smart recs error:', e);
+        } finally {
+          setRecsLoading(false);
+        }
       } catch (err) {
         console.error('Error fetching movie details:', err);
       } finally {
@@ -35,7 +60,8 @@ const MovieDetail = () => {
     };
     fetchDetails();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+  }, [id, typeParam]);
+
 
   const handleWatchlist = async () => {
     if (!user) return alert('Please sign in to save titles to your watchlist!');
@@ -84,17 +110,14 @@ const MovieDetail = () => {
     }
   };
 
-  // Find trailer key from backend videos or search fallback
-  const trailerVideo = movie?.videos?.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')) || movie?.videos?.[0];
+  // Find trailer key — Trailer preferred, fallback to Teaser or any video
+  const trailerVideo = movie?.videos?.find(v => v.site === 'YouTube' && v.type === 'Trailer')
+    || movie?.videos?.find(v => v.site === 'YouTube' && v.type === 'Teaser')
+    || movie?.videos?.find(v => v.site === 'YouTube');
   const trailerKey = trailerVideo?.key;
 
-  const handleWatchTrailer = () => {
-    if (trailerKey) {
-      setShowTrailer(true);
-    } else {
-      window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent((movie?.title || 'movie') + ' official trailer')}`, '_blank');
-    }
-  };
+  // Always open embedded modal — NEVER redirect to YouTube
+  const handleWatchTrailer = () => setShowTrailer(true);
 
   if (loading) {
     return <div className="loading-state container">🎬 Loading Cinematic Details...</div>;
@@ -115,20 +138,29 @@ const MovieDetail = () => {
   return (
     <div className="movie-detail-page reveal">
       {/* YouTube Trailer Modal */}
-      {showTrailer && trailerKey && (
+      {showTrailer && (
         <div className="trailer-modal-overlay" onClick={() => setShowTrailer(false)}>
           <div className="trailer-modal" onClick={(e) => e.stopPropagation()}>
             <button className="trailer-close-btn" onClick={() => setShowTrailer(false)}>
-              <X size={26} />
+              <X size={24} />
             </button>
-            <iframe
-              src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0`}
-              title="Trailer"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="trailer-iframe"
-            />
+            {trailerKey ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1`}
+                title={`${movie?.title || 'Movie'} Trailer`}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="trailer-iframe"
+              />
+            ) : (
+              <div className="trailer-no-key">
+                <div className="trailer-no-key-icon">🎬</div>
+                <h3>Trailer Not Available</h3>
+                <p>No official trailer is available for <strong>{movie?.title}</strong> yet.</p>
+                <button className="btn btn-primary" onClick={() => setShowTrailer(false)}>Close</button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -208,20 +240,55 @@ const MovieDetail = () => {
         </div>
       </div>
 
-      {/* Relevant Recommendations / Related Universe */}
-      {movie.similar && movie.similar.length > 0 && (
-        <div className="container similar-movies-section">
-          <div className="similar-header">
-            <Sparkles size={20} color="#e50914" />
-            <h2 className="section-title">Related & Franchise Recommendations</h2>
+      {/* Smart Cast-Based Recommendations */}
+      <div className="container similar-movies-section">
+        <div className="similar-header">
+          <Users size={20} color="#e50914" />
+          <h2 className="section-title">More From The Same Cast &amp; Director</h2>
+        </div>
+
+        {/* Cast badges */}
+        {castInfo.length > 0 && (
+          <div className="cast-badges">
+            {castInfo.map(actor => (
+              <div key={actor.id} className="cast-badge">
+                {actor.profile_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w92${actor.profile_path}`}
+                    alt={actor.name}
+                    className="cast-badge-avatar"
+                  />
+                ) : (
+                  <div className="cast-badge-avatar cast-badge-placeholder">👤</div>
+                )}
+                <span className="cast-badge-name">{actor.name}</span>
+              </div>
+            ))}
           </div>
+        )}
+
+        {recsLoading ? (
+          <div className="recs-loading">
+            <span className="spinner-recs" />
+            <span>Finding movies from the same cast...</span>
+          </div>
+        ) : smartRecs.length > 0 ? (
           <div className="movie-grid">
-            {movie.similar.slice(0, 10).map((m, idx) => (
+            {smartRecs.map((m, idx) => (
               <MovieCard key={m.tmdbId || m.id || idx} movie={m} />
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          // Fallback to TMDB similar
+          movie.similar && movie.similar.length > 0 && (
+            <div className="movie-grid">
+              {movie.similar.slice(0, 10).map((m, idx) => (
+                <MovieCard key={m.tmdbId || m.id || idx} movie={m} />
+              ))}
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 };

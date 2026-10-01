@@ -28,8 +28,11 @@ export const AuthProvider = ({ children }) => {
     checkUser();
   }, []);
 
-  const login = async (email, password, username) => {
-    const payload = username ? { username } : { email, password };
+  const login = async (email, password, username, rawPassword) => {
+    // Support both (email, password) and (null, null, username, rawPassword) calling patterns
+    const payload = username
+      ? { username, password: rawPassword }
+      : { email, password };
     const res = await axios.post('/api/auth/login', payload);
     localStorage.setItem('token', res.data.token);
     setUser({ token: res.data.token, ...res.data.user });

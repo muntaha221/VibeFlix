@@ -11,37 +11,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Database Connection Cache for Serverless & Dev
-let isConnected = false;
-const connectDB = async () => {
-  if (isConnected || mongoose.connection.readyState >= 1) {
-    isConnected = true;
-    return;
-  }
-  if (!process.env.MONGODB_URI) {
-    console.warn('MONGODB_URI is not defined in environment variables.');
-    return;
-  }
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-    });
-    isConnected = true;
-    console.log('Connected to MongoDB');
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-  }
-};
+// Database is now handled locally via JSON file in localDB.js
 
-connectDB();
-
-// Ensure DB is connected for incoming API requests
-app.use(async (req, res, next) => {
-  if (!isConnected && mongoose.connection.readyState !== 1) {
-    await connectDB();
-  }
-  next();
-});
 
 // Health check
 app.get('/api/health', (req, res) => {

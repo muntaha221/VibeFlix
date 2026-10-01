@@ -1,39 +1,96 @@
+/* ============================================================
+   DISCOVER PAGE — Midnight Black + Cyan
+   ============================================================ */
+
 .discover-page {
   padding-top: 100px;
-  padding-bottom: 100px;
+  padding-bottom: 80px;
   background: var(--bg-color);
   min-height: 100vh;
 }
 
+.discover-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.vibe-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(76, 201, 240, 0.25);
+  color: var(--accent-color);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.page-title {
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 900;
+  margin-bottom: 0.8rem;
+  line-height: 1.15;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
 .recommender-container {
-  max-width: 900px;
+  max-width: 880px;
   margin: 0 auto 60px;
-  padding: 0 20px;
+}
+
+/* ─── Results ────────────────────────────────────────────── */
+.recommendations-results {
+  animation: slideUp 0.5s ease;
 }
 
 .results-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--glass-border);
-  padding-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-color);
 }
 
 .results-count {
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.8rem;
+  color: var(--accent-color);
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(76, 201, 240, 0.2);
+  padding: 3px 10px;
+  border-radius: 20px;
 }
 
 .recommendation-compact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.5rem;
 }
 
+/* ─── Recommend Card ─────────────────────────────────────── */
 .movie-card-simple {
   background: var(--card-bg);
   border-radius: 16px;
@@ -42,88 +99,104 @@
   transition: var(--transition);
   display: flex;
   flex-direction: column;
-  position: relative;
   overflow: hidden;
-}
-
-.card-content-wrapper {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  backdrop-filter: blur(8px);
 }
 
 .movie-card-simple:hover {
-  transform: translateY(-8px);
+  transform: translateY(-6px);
   border-color: var(--accent-color);
+  box-shadow: var(--card-hover-shadow);
 }
 
 .card-poster-wrapper {
   width: 100%;
-  height: 450px;
+  height: 380px;
   overflow: hidden;
   background: var(--bg-tertiary);
   position: relative;
+  flex-shrink: 0;
+}
+
+.card-poster-wrapper.no-poster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  height: 200px;
 }
 
 .card-poster-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease;
+  transition: transform 0.5s ease;
 }
 
 .movie-card-simple:hover .card-poster-img {
-  transform: scale(1.1);
+  transform: scale(1.06);
+}
+
+.card-content-wrapper {
+  padding: 1.1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.6rem;
 }
 
 .card-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 12px;
+  gap: 0.5rem;
 }
 
 .card-title {
-  font-size: 1.1rem; /* Reduced from 1.25rem */
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-color);
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card-rating {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: var(--accent-color);
-  padding: 4px 10px;
-  border-radius: 4px;
-  color: #fff;
+  gap: 3px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(76, 201, 240, 0.2);
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--accent-color);
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  flex-shrink: 0;
 }
 
-.card-bottom {
-  flex: 1;
-}
+.card-bottom { flex: 1; }
 
 .card-year {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 700;
   color: var(--text-muted);
-  margin-bottom: 12px;
-  background: var(--input-bg);
-  padding: 2px 8px;
+  margin-bottom: 0.6rem;
+  background: var(--glass-bg);
+  padding: 2px 7px;
   border-radius: 4px;
 }
 
 .card-reason {
-  font-size: 0.85rem; /* Reduced from 0.95rem */
+  font-size: 0.84rem;
   color: var(--text-secondary);
   line-height: 1.6;
-  margin: 0 0 15px 0;
+  margin: 0 0 0.8rem 0;
 }
 
 .card-link {
@@ -131,17 +204,18 @@
   align-items: center;
   color: var(--accent-color);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   text-decoration: none;
   transition: gap 0.2s ease;
 }
 
-.card-link:hover {
-  text-decoration: underline;
+.card-link::after { content: ' →'; }
+
+.card-link:hover { text-decoration: underline; }
+
+/* ─── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .discover-page { padding-top: 88px; }
+  .recommendation-compact-grid { grid-template-columns: 1fr; }
+  .card-poster-wrapper { height: 280px; }
 }
-
-.card-link::after {
-  content: ' →';
-}
-
-

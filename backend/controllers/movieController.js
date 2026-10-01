@@ -193,30 +193,55 @@ exports.getByGenre = async (req, res) => {
 exports.getMovieDetails = async (req, res) => {
   try {
     const { id } = req.params;
+    const type = req.query.type; // 'tv' or 'movie'
     const apiKey = process.env.TMDB_API_KEY;
     
     if (!apiKey) {
       return res.status(404).json({ error: 'TMDB API key not configured' });
     }
 
-    // Try fetching movie details first
     let isTv = false;
     let details, similar, videos;
 
-    try {
-      [details, similar, videos] = await Promise.all([
-        axios.get(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`),
-        axios.get(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`),
-        axios.get(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).catch(() => ({ data: { results: [] } }))
-      ]);
-    } catch (movieErr) {
-      // If movie fails (e.g. 404), try TV endpoint
+    const fetchMovie = () => Promise.all([
+      axios.get(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&append_to_response=credits`),
+      axios.get(`https://api.themoviedb.org/3/movie/${id}/similar?api_key=${apiKey}`),
+      axios.get(`https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}`).catch(() => ({ data: { results: [] } }))
+    ]);
+
+    const fetchTv = () => Promise.all([
+      axios.get(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}&append_to_response=credits`),
+      axios.get(`https://api.themoviedb.org/3/tv/${id}/similar?api_key=${apiKey}`),
+      axios.get(`https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`).catch(() => ({ data: { results: [] } }))
+    ]);
+
+    if (type === 'tv') {
       isTv = true;
-      [details, similar, videos] = await Promise.all([
-        axios.get(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`),
-        axios.get(`https://api.themoviedb.org/3/tv/${id}/similar?api_key=${apiKey}`),
-        axios.get(`https://api.themoviedb.org/3/tv/${id}/videos?api_key=${apiKey}`).catch(() => ({ data: { results: [] } }))
-      ]);
+      try {
+        [details, similar, videos] = await fetchTv();
+      } catch (e) {
+        // Fallback to movie just in case
+        isTv = false;
+        [details, similar, videos] = await fetchMovie();
+      }
+    } else if (type === 'movie') {
+      isTv = false;
+      try {
+        [details, similar, videos] = await fetchMovie();
+      } catch (e) {
+        // Fallback to TV just in case
+        isTv = true;
+        [details, similar, videos] = await fetchTv();
+      }
+    } else {
+      // Default fallback logic if type not provided
+      try {
+        isTv = false;
+        [details, similar, videos] = await fetchMovie();
+      } catch (movieErr) {
+        isTv = true;
+        [details, similar, videos] = await fetchTv();
+      }
     }
 
     const raw = details.data;
@@ -243,32 +268,29 @@ exports.getMovieDetails = async (req, res) => {
 /**
  * Watchlist & Reviews logic
  */
+const { readDB, writeDB } = require('../localDB');
+
 exports.addToWatchlist = async (req, res) => {
   try {
     const { movie } = req.body;
-    const User = require('../models/User');
-    const Movie = require('../models/Movie');
+    const db = readDB();
+    const user = db.users.find(u => u._id === req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-    let dbMovie = await Movie.findOne({ tmdbId: movie.tmdbId });
-    if (!dbMovie) {
-      dbMovie = new Movie({
-        tmdbId: movie.tmdbId,
+    // Deduplicate movies by tmdbId in the watchlist
+    const targetId = movie.tmdbId || movie.id;
+    if (!user.watchlist.some(m => m.tmdbId === targetId || m.id === targetId)) {
+      user.watchlist.push({
+        tmdbId: targetId,
+        id: targetId,
         title: movie.title,
-        posterPath: movie.poster_path || movie.posterPath,
-        backdropPath: movie.backdrop_path || movie.backdropPath,
-        overview: movie.overview,
-        releaseDate: movie.release_date || movie.releaseDate,
-        voteAverage: movie.vote_average || movie.voteAverage,
-        genres: movie.genres?.map(g => (typeof g === 'string' ? g : g.name)) || []
+        poster_path: movie.poster_path || movie.posterPath,
+        backdrop_path: movie.backdrop_path || movie.backdropPath,
+        media_type: movie.media_type || 'movie'
       });
-      await dbMovie.save();
+      writeDB(db);
     }
 
-    const user = await User.findById(req.user.id);
-    if (!user.watchlist.includes(dbMovie._id)) {
-      user.watchlist.push(dbMovie._id);
-      await user.save();
-    }
     res.json(user.watchlist);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -278,9 +300,13 @@ exports.addToWatchlist = async (req, res) => {
 exports.removeFromWatchlist = async (req, res) => {
   try {
     const { movieId } = req.params;
-    const user = await require('../models/User').findById(req.user.id);
-    user.watchlist = user.watchlist.filter(id => id.toString() !== movieId);
-    await user.save();
+    const db = readDB();
+    const user = db.users.find(u => u._id === req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.watchlist = user.watchlist.filter(m => String(m.tmdbId) !== String(movieId) && String(m.id) !== String(movieId) && String(m._id) !== String(movieId));
+    writeDB(db);
+
     res.json(user.watchlist);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -290,13 +316,21 @@ exports.removeFromWatchlist = async (req, res) => {
 exports.addReview = async (req, res) => {
   try {
     const { movieId, rating, comment } = req.body;
-    const review = new (require('../models/Review'))({
+    const db = readDB();
+    const user = db.users.find(u => u._id === req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const review = {
+      _id: Math.random().toString(36).substr(2, 9),
       user: req.user.id,
+      username: user.username,
       movie: movieId,
       rating,
       comment
-    });
-    await review.save();
+    };
+    db.reviews.push(review);
+    writeDB(db);
+
     res.status(201).json(review);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -306,10 +340,137 @@ exports.addReview = async (req, res) => {
 exports.getMovieReviews = async (req, res) => {
   try {
     const { tmdbId } = req.params;
-    const reviews = await require('../models/Review').find({ movie: tmdbId }).populate('user', 'username');
+    const db = readDB();
+    const reviews = db.reviews.filter(r => String(r.movie) === String(tmdbId));
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getUserReviews = async (req, res) => {
+  try {
+    const db = readDB();
+    const userReviews = db.reviews.filter(r => String(r.user) === String(req.user.id));
+    res.json(userReviews);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getActorMovies = async (req, res) => {
+  try {
+    const { actorId } = req.params;
+    const apiKey = process.env.TMDB_API_KEY;
+    if (!apiKey) return res.json([]);
+
+    const response = await axios.get(`https://api.themoviedb.org/3/person/${actorId}/combined_credits?api_key=${apiKey}`);
+    
+    // Filter and sort for the best titles
+    const credits = response.data.cast || [];
+    const bestMovies = credits
+      .filter(m => m.poster_path && (m.media_type === 'movie' || m.media_type === 'tv') && m.vote_count > 50)
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+      .slice(0, 15)
+      .map(formatTMDBItem);
+      
+    res.json(bestMovies);
+  } catch (err) {
+    console.error('getActorMovies error:', err.message);
+    res.json([]);
+  }
+};
+
+/**
+ * GET /api/movies/search?q=query
+ * Searches TMDB for movies and TV shows by name
+ */
+exports.searchMovies = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const apiKey = process.env.TMDB_API_KEY;
+    if (!q || !apiKey) return res.json([]);
+
+    const response = await axios.get(
+      `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${encodeURIComponent(q)}&page=1`
+    );
+    const results = (response.data.results || [])
+      .filter(r => r.poster_path && (r.media_type === 'movie' || r.media_type === 'tv'))
+      .slice(0, 20)
+      .map(formatTMDBItem);
+    res.json(results);
+  } catch (err) {
+    console.error('searchMovies error:', err.message);
+    res.json([]);
+  }
+};
+
+/**
+ * GET /api/movies/smart-recommendations/:id?type=movie|tv
+ * Returns cast-based recommendations: fetches top cast members and their filmography
+ */
+exports.getSmartRecommendations = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const mediaType = req.query.type || 'movie';
+    const apiKey = process.env.TMDB_API_KEY;
+    if (!apiKey) return res.json([]);
+
+    // 1. Get cast & crew for this title
+    const creditsUrl = `https://api.themoviedb.org/3/${mediaType}/${id}/credits?api_key=${apiKey}`;
+    const creditsRes = await axios.get(creditsUrl);
+    const cast = creditsRes.data.cast || [];
+    const crew = creditsRes.data.crew || [];
+
+    // 2. Take top 3 cast members + director
+    const topCast = cast.slice(0, 3).map(c => ({ id: c.id, name: c.name }));
+    const director = crew.find(c => c.job === 'Director');
+    const people = director ? [director, ...topCast] : topCast;
+
+    if (people.length === 0) {
+      // Fallback to TMDB similar
+      const fallbackUrl = `https://api.themoviedb.org/3/${mediaType}/${id}/similar?api_key=${apiKey}`;
+      const fallbackRes = await axios.get(fallbackUrl);
+      const fallback = (fallbackRes.data.results || []).filter(m => m.poster_path).map(formatTMDBItem);
+      return res.json(fallback.slice(0, 15));
+    }
+
+    // 3. Fetch filmographies for each person in parallel
+    const filmographyPromises = people.map(person =>
+      axios
+        .get(`https://api.themoviedb.org/3/person/${person.id}/combined_credits?api_key=${apiKey}`)
+        .then(r => {
+          const credits = r.data.cast || [];
+          return credits.filter(m =>
+            m.poster_path &&
+            m.id !== parseInt(id) &&
+            (m.media_type === 'movie' || m.media_type === 'tv') &&
+            m.vote_count > 20  // Only show titles with enough votes (quality filter)
+          );
+        })
+        .catch(() => [])
+    );
+
+    const filmographies = await Promise.all(filmographyPromises);
+
+    // 4. Merge, deduplicate by TMDB id, sort by popularity
+    const seen = new Set();
+    const merged = [];
+    for (const films of filmographies) {
+      for (const film of films) {
+        if (!seen.has(film.id)) {
+          seen.add(film.id);
+          merged.push(film);
+        }
+      }
+    }
+
+    merged.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    const result = merged.slice(0, 15).map(formatTMDBItem);
+    res.json(result);
+  } catch (err) {
+    console.error('getSmartRecommendations error:', err.message);
+    res.json([]);
   }
 };
 

@@ -16,7 +16,7 @@ const MovieCard = ({ movie }) => {
   const isSeries = movie.media_type === 'tv' || !movie.release_date && !!movie.first_air_date;
 
   return (
-    <Link to={`/movie/${movieId}`} className="movie-card-pro">
+    <Link to={`/movie/${movieId}`} state={{ type: movie.media_type }} className="movie-card-pro">
       <div className="pro-poster-wrapper">
         <div className="card-badge-quality">{isSeries ? 'WEB SERIES' : '4K HDR'}</div>
         <div className="card-badge-rating">

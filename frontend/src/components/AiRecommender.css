@@ -1,10 +1,14 @@
+/* ============================================================
+   AI RECOMMENDER — Midnight Black + Cyan
+   ============================================================ */
+
 .ai-recommender {
-  width: 100%;
-  padding: 50px 40px;
-  background: linear-gradient(145deg, var(--bg-tertiary), var(--bg-secondary));
-  border-radius: 40px;
-  box-shadow: var(--card-shadow);
+  background: rgba(16, 18, 26, 0.7);
   border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem 2rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
 }
@@ -12,97 +16,103 @@
 .ai-recommender::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255, 23, 68, 0.1) 0%, transparent 70%);
-  pointer-events: none;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+  opacity: 0.6;
 }
 
-.pro-title {
-  font-size: 2rem; /* Reduced from 3.5rem */
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: var(--text-color);
-  letter-spacing: -1px;
-}
-
-.ai-subtitle {
-  color: var(--text-muted);
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 40px;
-}
-
-.ai-form-pro {
+.ai-input-row {
   display: flex;
-  gap: 20px;
-  align-items: center;
-  position: relative;
-  z-index: 1;
+  gap: 0.8rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 
-.search-box-vibe {
+.ai-input {
   flex: 1;
-  position: relative;
+  min-width: 200px;
+  background: rgba(76, 201, 240, 0.05);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.95rem;
+  font-family: 'Outfit', sans-serif;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  resize: none;
+}
+
+.ai-input::placeholder { color: var(--text-muted); }
+
+.ai-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+  background: rgba(76, 201, 240, 0.08);
+}
+
+.ai-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, var(--accent-color) 0%, #38b2e8 100%);
+  color: #0a0d1a;
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 1.6rem;
+  font-size: 0.93rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  white-space: nowrap;
+}
+
+.ai-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(76, 201, 240, 0.5);
+}
+
+.ai-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-loading {
   display: flex;
   align-items: center;
-  background: var(--input-bg);
-  border-radius: 12px;
-  padding: 5px 25px;
-  transition: all 0.3s ease;
-  border: 1px solid var(--input-border);
-  backdrop-filter: blur(10px);
-}
-
-.search-box-vibe:focus-within {
-  border-color: var(--accent-color);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.search-icon-vibe {
+  gap: 0.7rem;
+  padding: 1.2rem 0 0;
   color: var(--accent-color);
-  margin-right: 15px;
-  width: 20px;
-  height: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
-.ai-input-flat {
-  width: 100%;
-  height: 60px;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 1.1rem;
-  color: var(--text-color);
+.spinner-ai {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(76, 201, 240, 0.2);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 
-.btn-vibe-search {
-  height: 72px;
-  padding: 0 40px;
-  background: var(--accent-color);
-  color: white;
-  border-radius: 12px;
-  border: none;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: var(--transition);
+.ai-error {
+  margin-top: 0.8rem;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  color: #fca5a5;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.86rem;
 }
 
-.btn-vibe-search:hover {
-  background: var(--accent-secondary);
-  transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-  .ai-form-pro {
-    flex-direction: column;
-  }
-
-  .search-box-vibe,
-  .btn-vibe-search {
-    width: 100%;
-  }
+@media (max-width: 600px) {
+  .ai-recommender { padding: 1.4rem; }
+  .ai-input-row { flex-direction: column; }
+  .ai-submit-btn { width: 100%; justify-content: center; }
 }

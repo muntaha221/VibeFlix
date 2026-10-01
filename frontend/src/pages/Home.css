@@ -1,105 +1,114 @@
+/* ============================================================
+   HOME PAGE — Midnight Black + Cyan
+   ============================================================ */
+
 .home-clean {
   background: var(--bg-color);
   min-height: 100vh;
 }
 
 .main-content {
-  padding-top: 30px;
-  padding-bottom: 90px;
+  padding-top: 28px;
+  padding-bottom: 80px;
 }
 
+/* ─── Row Sections ───────────────────────────────────────── */
 .row-section {
-  margin-bottom: 45px;
+  margin-bottom: 42px;
 }
 
 .row-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  gap: 1rem;
 }
 
 .section-title-glow {
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   color: var(--text-color);
   position: relative;
   display: inline-block;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.01em;
 }
 
 .section-title-glow::after {
   content: '';
   position: absolute;
-  bottom: -6px;
+  bottom: -5px;
   left: 0;
-  width: 40px;
+  width: 36px;
   height: 3px;
-  background: var(--accent-color);
+  background: linear-gradient(90deg, var(--accent-color), transparent);
   border-radius: 2px;
 }
 
 .row-count-badge {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  color: var(--accent-color);
+  background: var(--accent-dim);
+  border: 1px solid rgba(76, 201, 240, 0.2);
   padding: 3px 10px;
   border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.premium-scroll {
+/* ─── Horizontal Scroll ──────────────────────────────────── */
+.horizontal-scroll.premium-scroll {
   display: flex;
   overflow-x: auto;
-  gap: 16px;
-  padding: 6px 4px 20px;
+  gap: 14px;
+  padding: 6px 4px 18px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  /* Fade edges for premium feel */
+  mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
 }
 
-.premium-scroll::-webkit-scrollbar {
+.horizontal-scroll.premium-scroll::-webkit-scrollbar {
   display: none;
 }
 
 .scroll-item {
-  flex: 0 0 170px;
-  width: 170px;
+  flex: 0 0 168px;
+  width: 168px;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .scroll-item:hover {
-  transform: translateY(-6px);
+  transform: translateY(-5px);
   z-index: 5;
 }
 
-/* Category Grid View */
+/* ─── Category Grid ──────────────────────────────────────── */
 .category-view-section {
-  padding: 10px 0 40px;
+  padding: 8px 0 40px;
 }
 
 .category-view-header {
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .category-movie-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 18px;
 }
 
-.grid-movie-wrapper {
-  width: 100%;
-}
+.grid-movie-wrapper { width: 100%; }
 
+/* ─── Loaders ────────────────────────────────────────────── */
 .category-inline-loader {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   padding: 60px 0;
   color: var(--accent-color);
   font-weight: 600;
@@ -120,34 +129,30 @@
   gap: 16px;
   color: var(--accent-color);
   font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
 }
 
 .loader-spin {
   animation: spin 1s linear infinite;
+  filter: drop-shadow(0 0 8px var(--accent-color));
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* ─── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .scroll-item { flex: 0 0 148px; width: 148px; }
+  .category-movie-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; }
 }
 
-/* Mobile & Tablet Responsive */
 @media (max-width: 768px) {
-  .main-content {
-    padding-top: 20px;
-    padding-bottom: 60px;
-  }
-  .section-title-glow {
-    font-size: 1.15rem;
-  }
-  .scroll-item {
-    flex: 0 0 135px;
-    width: 135px;
-  }
-  .category-movie-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 12px;
-  }
+  .main-content { padding-top: 18px; padding-bottom: 56px; }
+  .section-title-glow { font-size: 1.05rem; }
+  .scroll-item { flex: 0 0 132px; width: 132px; }
+  .category-movie-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+  .row-section { margin-bottom: 30px; }
+}
+
+@media (max-width: 480px) {
+  .scroll-item { flex: 0 0 118px; width: 118px; }
+  .category-movie-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 }
