@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Joyride, { STATUS } from 'react-joyride';
+import { Joyride, STATUS } from 'react-joyride';
 import { useTheme } from '../context/ThemeContext';
 
 const TutorialGuide = () => {
