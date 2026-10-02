@@ -11,12 +11,15 @@ import Register from './pages/Register';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 
+import TutorialGuide from './components/TutorialGuide';
+
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <Router>
         <div className="app-container">
+          <TutorialGuide />
           <Navbar />
           <main>
             <Routes>
