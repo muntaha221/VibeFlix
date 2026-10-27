@@ -75,12 +75,12 @@ const Home = () => {
   }
 
   const allSections = [
-    { id: 'trending', title: 'Trending Global', icon: Flame, data: trending },
-    { key: 'trending_series', title: 'Trending Web Series', icon: Tv },
-    { key: 'latest_releases', title: 'Latest Releases', icon: Sparkles },
-    { key: 'top_rated', title: 'All-Time Top Rated', icon: Star },
-    { key: 'bollywood_hits', title: 'Bollywood Hits', icon: Film },
-    { key: 'popular_anime', title: 'Popular Anime', icon: Sparkles }
+    { id: 'trending', title: 'Trending Global', data: trending },
+    { key: 'trending_series', title: 'Trending Web Series' },
+    { key: 'latest_releases', title: 'Latest Releases' },
+    { key: 'top_rated', title: 'All-Time Top Rated' },
+    { key: 'bollywood_hits', title: 'Bollywood Hits' },
+    { key: 'popular_anime', title: 'Popular Anime' }
   ];
 
   return (
@@ -121,15 +121,10 @@ const Home = () => {
             const raw = section.data || (collections && collections[section.key]) || [];
             const sectionData = Array.isArray(raw) ? raw : [];
             if (sectionData.length === 0) return null;
-            const SectionIcon = section.icon;
-
             return (
               <section key={section.id || section.key || idx} className="row-section" ref={(el) => (rowsRef.current[idx] = el)}>
                 <div className="row-header">
-                  <h3 className="section-title-glow">
-                    {SectionIcon && <SectionIcon size={18} style={{ verticalAlign: 'middle', marginRight: '6px', opacity: 0.85 }} />}
-                    {section.title}
-                  </h3>
+                  <h3 className="section-title-glow">{section.title}</h3>
                   <span className="row-count-badge">{sectionData.length} Fresh</span>
                 </div>
                 <div className="horizontal-scroll premium-scroll">

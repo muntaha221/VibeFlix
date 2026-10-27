@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import './Auth.css';
+import BrandLogo from '../components/BrandLogo';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -36,16 +37,13 @@ const Login = () => {
         <div className="orb orb-2" />
       </div>
 
-      <div className="auth-container glass-panel animate-glow">
+      <div className="auth-container">
         {/* Header */}
         <div className="auth-header">
-          <div className="auth-icon-circle">
-            <Sparkles size={28} color="white" fill="rgba(255,255,255,0.3)" />
+          <div className="auth-brand-wrap">
+            <BrandLogo size="medium" />
           </div>
-          <h2 className="auth-title">
-            Welcome back to{' '}
-            <span className="gradient-text">VibeFlix</span>
-          </h2>
+          <h2 className="auth-title">Welcome Back</h2>
           <p className="auth-subtitle">Sign in to your account to continue your journey.</p>
         </div>
 

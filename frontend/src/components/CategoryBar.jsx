@@ -141,7 +141,6 @@ const CategoryBar = ({ activeCategory, onSelectCategory }) => {
             className={`cat-tab-btn ${activeCategory === 'all' ? 'active' : ''}`}
             onClick={() => handleItemClick('all')}
           >
-            <Sparkles size={16} />
             <span>All Featured</span>
           </button>
 

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Lock, Eye, EyeOff, UserPlus, Sparkles } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, UserPlus } from 'lucide-react';
 import './Auth.css';
+import BrandLogo from '../components/BrandLogo';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -18,8 +19,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
-    if (!username.trim() || !password) return;
 
     if (!username.trim() || !password) return;
 
@@ -46,16 +45,14 @@ const Register = () => {
         <div className="orb orb-2" />
       </div>
 
-      <div className="auth-container glass-panel animate-glow">
+      <div className="auth-container">
         {/* Header */}
         <div className="auth-header">
-          <div className="auth-icon-circle">
-            <Sparkles size={28} color="white" fill="rgba(255,255,255,0.3)" />
+          <div className="auth-brand-wrap">
+            <BrandLogo size="medium" />
           </div>
-          <h2 className="auth-title">
-            Join <span className="gradient-text">VibeFlix</span>
-          </h2>
-          <p className="auth-subtitle">Create your account — it's free and takes 30 seconds.</p>
+          <h2 className="auth-title">Create Account</h2>
+          <p className="auth-subtitle">Join VibeFlix — it takes 30 seconds.</p>
         </div>
 
         {/* Error */}

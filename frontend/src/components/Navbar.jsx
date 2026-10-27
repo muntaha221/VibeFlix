@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { User, LogOut, Menu, X, Compass, Home as HomeIcon, Search, Film } from 'lucide-react';
 import axios from 'axios';
 import './Navbar.css';
+import BrandLogo from './BrandLogo';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -112,7 +113,7 @@ const Navbar = () => {
         <div className="container nav-container">
           {/* VibeFlix Brand Logo */}
           <Link to="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
-            <span className="logo-text">VIBE<span className="cyan-text">FLIX</span><span className="logo-dot">.</span></span>
+            <BrandLogo size="medium" />
           </Link>
 
           {/* ── Desktop Nav ── */}
