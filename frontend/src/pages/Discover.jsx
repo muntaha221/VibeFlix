@@ -44,7 +44,7 @@ const Discover = () => {
                   <div className="card-top">
                     <h3 className="card-title">{rec.title}</h3>
                     <div className="card-rating">
-                      <Star size={14} fill="#ff1744" color="#ff1744" /> 
+                      <Star size={14} fill="#ffc107" color="#ffc107" /> 
                       <span>{rec.voteAverage?.toFixed(1) || 'N/A'}</span>
                     </div>
                   </div>

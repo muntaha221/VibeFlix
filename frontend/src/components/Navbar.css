@@ -44,24 +44,19 @@
   flex-shrink: 0;
 }
 
-.logo-icon {
-  width: 34px;
-  height: 34px;
-  background: linear-gradient(135deg, var(--accent-color), #38b2e8);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #0a0d1a;
-  box-shadow: 0 4px 14px var(--accent-glow);
-  flex-shrink: 0;
-}
-
 .logo-text {
-  font-size: 1.3rem;
+  font-size: 1.45rem;
   font-weight: 900;
   color: var(--text-color);
-  letter-spacing: -0.04em;
+  letter-spacing: 0.04em;
+  position: relative;
+}
+
+.logo-dot {
+  color: var(--accent-color);
+  font-weight: 900;
+  font-size: 1.6rem;
+  line-height: 0;
 }
 
 /* ─── Nav Links ─────────────────────────────────────────── */

@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { MonitorPlay, User, LogOut, Sun, Moon, Menu, X, Compass, Home as HomeIcon, Search } from 'lucide-react';
+import { User, LogOut, Menu, X, Compass, Home as HomeIcon, Search, Film } from 'lucide-react';
 import axios from 'axios';
 import './Navbar.css';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  // Dark mode is permanent — no toggle needed
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -111,12 +110,9 @@ const Navbar = () => {
     <header className={`navbar-wrapper ${scrolled ? 'scrolled' : ''}`}>
       <nav className="navbar pro-nav">
         <div className="container nav-container">
-          {/* Logo */}
+          {/* VibeFlix Brand Logo */}
           <Link to="/" className="nav-logo" onClick={() => setMobileMenuOpen(false)}>
-            <div className="logo-icon">
-              <MonitorPlay size={18} />
-            </div>
-            <span className="logo-text">VIBE<span className="cyan-text">FLIX</span></span>
+            <span className="logo-text">VIBE<span className="cyan-text">FLIX</span><span className="logo-dot">.</span></span>
           </Link>
 
           {/* ── Desktop Nav ── */}
@@ -125,7 +121,7 @@ const Navbar = () => {
               <HomeIcon size={15} /> Home
             </Link>
             <Link to="/discover" className={`nav-link ${location.pathname === '/discover' ? 'active' : ''}`}>
-              <Compass size={15} /> Find Your Type
+              <Compass size={15} /> Discover
             </Link>
 
             {/* Single Search (desktop) */}
@@ -186,9 +182,7 @@ const Navbar = () => {
               )}
             </div>
 
-            <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle theme">
-              {theme === 'light' ? <Sun size={17} /> : <Moon size={17} />}
-            </button>
+
 
             {user ? (
               <div className="nav-user-menu">
@@ -206,8 +200,7 @@ const Navbar = () => {
 
           {/* ── Mobile Actions ── */}
           <div className="mobile-nav-actions mobile-only">
-            <Link to="/discover" className="icon-btn" title="Find Your Type"><Compass size={18} /></Link>
-            <button className="icon-btn" onClick={toggleTheme}>{theme === 'light' ? <Sun size={18} /> : <Moon size={18} />}</button>
+            <Link to="/discover" className="icon-btn" title="Discover"><Compass size={18} /></Link>
             <button className="icon-btn" onClick={openSearch} title="Search"><Search size={18} /></button>
             <button className="hamburger-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Menu">
               {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -277,7 +270,7 @@ const Navbar = () => {
             <HomeIcon size={18} /><span>Home</span>
           </Link>
           <Link to="/discover" className={`mobile-nav-link ${location.pathname === '/discover' ? 'active' : ''}`}>
-            <Compass size={18} /><span>Find Your Type</span>
+            <Compass size={18} /><span>Discover</span>
           </Link>
           <div className="mobile-divider" />
           {user ? (
